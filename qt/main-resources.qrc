@@ -5,5 +5,6 @@
         <file>../JsLoader.js</file>
         <file>layouts/ScrollableText.qml</file>
         <file>TestScanning.qml</file>
+        <file>ScanningGridView.qml</file>
     </qresource>
 </RCC>
