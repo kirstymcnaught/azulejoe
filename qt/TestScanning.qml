@@ -6,6 +6,10 @@ Rectangle {
     color: "purple"
     focus: true
 
+    property int scanInterval: 1000
+    property int numRows: 5
+    property int numCols: 5
+
     Keys.onSpacePressed: {
         console.log("SPACE")
         if (scanner.state == "row") {
@@ -24,10 +28,8 @@ Rectangle {
 
         anchors.fill: parent
 
-        // 5x5 grid.
-        // We'll add appropriate margins inside delegate
-        cellWidth: width / 5
-        cellHeight: height / 5
+        cellWidth: width / numCols
+        cellHeight: height / numRows
 
         delegate: Item {
             width: gridView.cellWidth
@@ -41,19 +43,35 @@ Rectangle {
                 onClicked: { console.log ("row = "+row+", col = "+col); }
             }
             Rectangle {
-                width: gridView.cellWidth*0.9
-                height: gridView.cellHeight*0.9
+                id: highlight
+                width: gridView.cellWidth
+                height: gridView.cellHeight
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
 
                 color: (row === scanner.selectedRow) ? "yellow" : "white"
                 opacity: (scanner.state == "item" &&
                           col === scanner.selectedCol &&
-                          row === scanner.selectedRow) ? 0.8 : 0.2
+                          row === scanner.selectedRow) ? 0.8 : 0.5
                 border.width: (scanner.state == "item-selected" &&
                                col === scanner.selectedCol &&
-                               row === scanner.selectedRow) ? 5 : 0
-                border.color: "white"
+                               row === scanner.selectedRow) ? 10 : 0
+                border.color: "yellow"
+                //visible: mouseArea.pressedButtons
+            }
+            Rectangle {
+                id: item
+                width: gridView.cellWidth*0.9
+                height: gridView.cellHeight*0.9
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.verticalCenter: parent.verticalCenter
+
+                color:"white"
+                opacity: 1
+                border.width: (scanner.state == "item-selected" &&
+                               col === scanner.selectedCol &&
+                               row === scanner.selectedRow) ? 10 : 0
+                border.color: "yellow"
                 //visible: mouseArea.pressedButtons
             }
         }
@@ -68,16 +86,16 @@ Rectangle {
         property int selectedCol: 0
 
         Timer {
-            interval: 1000; running: true; repeat: true
+            interval: scanInterval; running: true; repeat: true
 
             onTriggered: {
                 if (scanner.state === "row") {
                     scanner.selectedRow++;
-                    scanner.selectedRow %= 5;
+                    scanner.selectedRow %= numRows;
                 }
                 else if (scanner.state === "item") {
                     scanner.selectedCol++;
-                    scanner.selectedCol %= 5;
+                    scanner.selectedCol %= numCols;
                 }
                 else if (scanner.state === "item-selected") {
                     scanner.state = "row"
@@ -88,12 +106,16 @@ Rectangle {
         state: "row"
 
         states: [
+            // We're ready for a row to be selected.
             State {
                 name: "row"
             },
+            // We've picked a row and we're ready for an item to be selected.
             State {
                 name: "item"
             },
+            // We've picked an item. We'll be in this state for one cycle,
+            // for user feedback
             State {
                 name: "item-selected"
             }
@@ -105,10 +127,9 @@ Rectangle {
     ListModel {
         id: testModel
         Component.onCompleted: {
-            for (var i =0; i < 5; i++) {
-                for (var j =0; j < 5; j++) {
-                    testModel.append({ color: "red",
-                                         row: i,
+            for (var i =0; i < numRows; i++) {
+                for (var j =0; j < numCols; j++) {
+                    testModel.append({ row: i,
                                          col: j,
                                          rowSelected: (i == 0)})
                 }
