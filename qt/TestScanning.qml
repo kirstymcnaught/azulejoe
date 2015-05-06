@@ -9,6 +9,8 @@ Rectangle {
     property int scanInterval: 1000
     property int numRows: 5
     property int numCols: 5
+    property alias delegate: gridView.internalDelegate;
+    property alias model: gridView.internalModel;
 
     Keys.onSpacePressed: {
         console.log("SPACE")
@@ -31,16 +33,37 @@ Rectangle {
         cellWidth: width / numCols
         cellHeight: height / numRows
 
+        property Component internalDelegate;
+        property variant internalModel;
+
         delegate: Item {
             width: gridView.cellWidth
             height: gridView.cellHeight
+
+            property int col: index % numRows
+            property int row: index/numCols
+
+            // This is the delegate that the user has specified.
+            Component {
+                Loader {
+                    sourceComponent: internalDelegate
+                    //property variant modelData: grid.model.get(index)
+                }
+            }
+
+            // Everything below are components to show scanning.
             MouseArea {
                 id: mouseArea
                 width: gridView.cellWidth*0.95
                 height: gridView.cellHeight*0.95
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
-                onClicked: { console.log ("row = "+row+", col = "+col); }
+                onClicked: {
+                    console.log ("row = "+row);
+                    console.log ("col = "+col);
+                    console.log ("index = "+index);
+
+                }
             }
             Rectangle {
                 id: highlight
@@ -79,6 +102,7 @@ Rectangle {
 
     }
 
+    // This item manages the scanning state.
     Item {
         id: scanner
 
