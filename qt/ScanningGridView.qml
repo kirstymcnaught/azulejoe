@@ -32,7 +32,7 @@ Rectangle {
 
     anchors.fill: parent
 
-    color: "purple"
+    //color: "purple"
 
     // row and column are zero-indexed
     signal clicked(int row, int col);
@@ -40,6 +40,8 @@ Rectangle {
     property int scanInterval: 1000
     property int numRows: 5
     property int numCols: 5
+    property string highlightColour: "blue"
+
     property alias delegate: gridView.internalDelegate;
     property alias model: gridView.internalModel;
 
@@ -106,23 +108,56 @@ Rectangle {
                     }
                 }
             }
-            Rectangle {
-                id: highlight
-                width: gridView.cellWidth
-                height: gridView.cellHeight
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.verticalCenter: parent.verticalCenter
 
-                color: (row === scanner.selectedRow) ? "yellow" : "white"
-                opacity: (scanner.state == "item" &&
-                          col === scanner.selectedCol &&
-                          row === scanner.selectedRow) ? 0.8 : 0.5
-                border.width: (scanner.state == "item-selected" &&
-                               col === scanner.selectedCol &&
-                               row === scanner.selectedRow) ? 10 : 0
-                border.color: "yellow"
+            // Some properties that help us work out what to draw
+            property int barSize: 10
+            property bool rowSelected: (row === scanner.selectedRow)
+            property bool colSelected: (col === scanner.selectedCol)
+            property bool selectingRow: (scanner.state == "row")
+            property bool selectingItem: (scanner.state == "item")
 
+            // Top and bottom of cell.
+            Item {
+                visible: (selectingRow || selectingItem) && rowSelected
+                opacity: (selectingRow || colSelected) ? 1 : 0.2
+
+                Rectangle {
+                    width: gridView.cellWidth
+                    height: barSize
+                    color: highlightColour
+                }
+                Rectangle {
+                    width: gridView.cellWidth
+                    height: barSize
+                    y: gridView.cellHeight - barSize
+                    color: highlightColour
+                }
             }
+
+            // Left and right of cell
+            Item {
+                id: lr
+                // This is the shared visibility logic, but each
+                // bar adds it's own.
+                visible: ( selectingRow || selectingItem) && rowSelected
+
+                Rectangle {
+                    width: barSize
+                    height: gridView.cellHeight
+                    color: highlightColour
+                    visible: (selectingRow && col === 0) ||
+                             (selectingItem && colSelected)
+                }
+                Rectangle {
+                    width: barSize
+                    height: gridView.cellHeight
+                    x: gridView.cellWidth - barSize
+                    color: highlightColour
+                    visible: (selectingRow && col === numRows -1) ||
+                             (selectingItem && colSelected)
+                }
+            }                        
+
         }
 
         model: internalModel
