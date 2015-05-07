@@ -16,6 +16,11 @@ Rectangle {
             gridView.next();
         }
 
+        onClicked: {
+            console.log("row = "+ row);
+            console.log("col = "+ col);
+        }
+
         delegate: Item {
             anchors.fill: parent
             id: mainItem

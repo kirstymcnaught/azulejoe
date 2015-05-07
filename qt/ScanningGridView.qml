@@ -7,25 +7,35 @@ import QtQuick 2.0
 // scanning.
 // The key differences between using a normal gridview and
 // this one, is that:
-// - you must specify the number of rows/columns, and the
+// - You must specify the number of rows/columns, and the
 //   rest of the sizing is automatic.
-// - when you specify a delegate, you must access it's properties
+// - You should hook up your switch input to the next() function.
+// - Any click event you want to respond to should be done by
+//   connecting to signal clicked(row, col) rather than putting
+//   a mouse area in the individual delegate. I haven't figured
+//   out a more sane way of doing this, unfortunately.
+// - When you specify a delegate, you must access it's properties
 //   via the special property name "modelData", i.e.
 //
-// model: ListModel {
-//          ListElement { name: "bob" }
-//        }
+// model:    ListModel {
+//             ListElement { name: "bob" }
+//           }
 // delegate: Text {
-//             text: modelData.name
+//             text: modelData.name // NOT just "name".
 //           }
 //
 // If you need to access any other gridview properties, add aliases to
 // the top level Rectangle.
 //
 Rectangle {
+    id: root
+
     anchors.fill: parent
 
     color: "purple"
+
+    // row and column are zero-indexed
+    signal clicked(int row, int col);
 
     property int scanInterval: 1000
     property int numRows: 5
@@ -33,13 +43,19 @@ Rectangle {
     property alias delegate: gridView.internalDelegate;
     property alias model: gridView.internalModel;
 
+    // If this is false, the only way to 'click' on an item is
+    // through the scanning mechanism.
+    property bool supportMouseClicksAlso: true
+
     function next() {
         if (scanner.state == "row") {
             scanner.state = "item"
             scanner.selectedCol = 0;
         }
         else if (scanner.state == "item") {
-            scanner.state = "item-selected"            
+            scanner.state = "item-selected"
+            root.clicked(scanner.selectedRow,
+                             scanner.selectedCol);
         }
     }
 
@@ -57,6 +73,7 @@ Rectangle {
         property variant internalModel;
 
         delegate: Item {
+
             width: gridView.cellWidth
             height: gridView.cellHeight
 
@@ -84,9 +101,9 @@ Rectangle {
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
                 onClicked: {
-                    console.log ("row = "+row);
-                    console.log ("col = "+col);
-                    console.log ("index = "+index);
+                    if (root.supportMouseClicksAlso) {
+                        root.clicked(row, col);
+                    }
                 }
             }
             Rectangle {
@@ -104,8 +121,10 @@ Rectangle {
                                col === scanner.selectedCol &&
                                row === scanner.selectedRow) ? 10 : 0
                 border.color: "yellow"
+
             }
         }
+
         model: internalModel
 
     }
