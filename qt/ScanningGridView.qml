@@ -40,7 +40,11 @@ Rectangle {
     property int scanInterval: 1000
     property int numRows: 5
     property int numCols: 5
+    // This is the colour of the scan outline
     property string highlightColour: "blue"
+    // This is the colour a row/item goes briefly to
+    // show it's been selected
+    property string selectionColour: "yellow"
 
     property alias delegate: gridView.internalDelegate;
     property alias model: gridView.internalModel;
@@ -51,7 +55,7 @@ Rectangle {
 
     function next() {
         if (scanner.state == "row") {
-            scanner.state = "item"
+            scanner.state = "row-selected"
             scanner.selectedCol = 0;
         }
         else if (scanner.state == "item") {
@@ -115,22 +119,30 @@ Rectangle {
             property bool colSelected: (col === scanner.selectedCol)
             property bool selectingRow: (scanner.state == "row")
             property bool selectingItem: (scanner.state == "item")
+            property bool itemSelected: (scanner.state == "item-selected" &&
+                                         rowSelected && colSelected)
+            property bool rowSelectedBriefly: (scanner.state == "row-selected" &&
+                                               rowSelected)
+
 
             // Top and bottom of cell.
             Item {
-                visible: (selectingRow || selectingItem) && rowSelected
-                opacity: (selectingRow || colSelected) ? 1 : 0.2
+                visible: rowSelected
+                opacity: (selectingRow || colSelected || itemSelected || rowSelectedBriefly)
+                         ? 1 : 0.2
 
                 Rectangle {
                     width: gridView.cellWidth
                     height: barSize
-                    color: highlightColour
+                    color: (itemSelected || rowSelectedBriefly)
+                           ? selectionColour : highlightColour
                 }
                 Rectangle {
                     width: gridView.cellWidth
                     height: barSize
                     y: gridView.cellHeight - barSize
-                    color: highlightColour
+                    color: (itemSelected || rowSelectedBriefly)
+                           ? selectionColour : highlightColour
                 }
             }
 
@@ -139,22 +151,24 @@ Rectangle {
                 id: lr
                 // This is the shared visibility logic, but each
                 // bar adds it's own.
-                visible: ( selectingRow || selectingItem) && rowSelected
+                visible: rowSelected
 
                 Rectangle {
                     width: barSize
                     height: gridView.cellHeight
-                    color: highlightColour
+                    color: itemSelected ? selectionColour : highlightColour
                     visible: (selectingRow && col === 0) ||
-                             (selectingItem && colSelected)
+                             (selectingItem && colSelected) ||
+                             itemSelected
                 }
                 Rectangle {
                     width: barSize
                     height: gridView.cellHeight
                     x: gridView.cellWidth - barSize
-                    color: highlightColour
+                    color: itemSelected ? selectionColour : highlightColour
                     visible: (selectingRow && col === numRows -1) ||
-                             (selectingItem && colSelected)
+                             (selectingItem && colSelected) ||
+                             itemSelected
                 }
             }                        
 
@@ -179,6 +193,9 @@ Rectangle {
                     scanner.selectedRow++;
                     scanner.selectedRow %= numRows;
                 }
+                else if (scanner.state === "row-selected") {
+                    scanner.state = "item"
+                }
                 else if (scanner.state === "item") {
                     scanner.selectedCol++;
                     scanner.selectedCol %= numCols;
@@ -196,6 +213,11 @@ Rectangle {
             State {
                 name: "row"
             },
+            // We've picked a row. We'll be in this state for one cycle,
+            // for user feedback
+            State {
+                name: "row-selected"
+            },
             // We've picked a row and we're ready for an item to be selected.
             State {
                 name: "item"
@@ -204,6 +226,17 @@ Rectangle {
             // for user feedback
             State {
                 name: "item-selected"
+            }
+        ]
+
+        transitions:  [
+            Transition {
+                from: "item"; to: "item-selected";
+                ColorAnimation { duration: 500 }
+            },
+            Transition {
+                from: "row"; to: "row-selected";
+                ColorAnimation { duration: 500 }
             }
         ]
     }
