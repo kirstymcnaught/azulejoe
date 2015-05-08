@@ -13,7 +13,7 @@ ApplicationWindow {
     width: 1200
     height: 700
 
-    //property alias text: stagedText.text
+    property alias text: stagedText.text
 
     // Append a string. Does *not* add a space.
     function appendWord(word) {
@@ -52,8 +52,8 @@ ApplicationWindow {
                              event.accepted = true;
                          }
 
-        initialItem: // PageLayout { page: "page1" }
-                     Qt.resolvedUrl("TestScanning.qml")
+        initialItem: PageLayout { page: "page1" }
+                     //Qt.resolvedUrl("TestScanning.qml")
 
         delegate: StackViewDelegate {
             function transitionFinished(properties)
@@ -80,7 +80,7 @@ ApplicationWindow {
 
     // This text view sits on top of the stack of pagesets, to manage the pending
     // utterances.
-    /*Rectangle {
+    Rectangle {
         id:rect
         property int tileX: (parent.width/5)
         property int tileY: (parent.height/5)
@@ -107,6 +107,6 @@ ApplicationWindow {
             // same approximate size on devices with different DPI.
             font.pixelSize: rect.tileY/4
         }
-    }*/
+    }
 
 }

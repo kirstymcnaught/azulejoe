@@ -32,7 +32,7 @@ Rectangle {
 
     anchors.fill: parent
 
-    //color: "purple"
+    color: "transparent"
 
     // row and column are zero-indexed
     signal clicked(int row, int col);
@@ -54,11 +54,14 @@ Rectangle {
     property bool supportMouseClicksAlso: true
 
     function next() {
+        console.log("next!");
         if (scanner.state == "row") {
+            console.log("going into row-selected state");
             scanner.state = "row-selected"
-            scanner.selectedCol = 0;
+            scanner.selectedCol = 0;            
         }
         else if (scanner.state == "item") {
+            console.log("going into item-selected state");
             scanner.state = "item-selected"
             root.clicked(scanner.selectedRow,
                              scanner.selectedCol);
@@ -91,8 +94,8 @@ Rectangle {
             // model data must be referred to by modelData.propertyname
             // rather than just propertyname.
             Loader {
+                z: 100
                 anchors.fill: parent
-                z: 200
                 sourceComponent: gridView.internalDelegate
 
                 // This is required to move the mode into scope in the loader.
@@ -127,6 +130,7 @@ Rectangle {
 
             // Top and bottom of cell.
             Item {
+                z: 500
                 visible: rowSelected
                 opacity: (selectingRow || colSelected || itemSelected || rowSelectedBriefly)
                          ? 1 : 0.2
@@ -148,6 +152,7 @@ Rectangle {
 
             // Left and right of cell
             Item {
+                z: 500
                 id: lr
                 // This is the shared visibility logic, but each
                 // bar adds it's own.
@@ -189,18 +194,23 @@ Rectangle {
             interval: scanInterval; running: true; repeat: true
 
             onTriggered: {
+                //console.log("timer");
                 if (scanner.state === "row") {
+                  //  console.log("incrementing row count");
                     scanner.selectedRow++;
                     scanner.selectedRow %= numRows;
                 }
                 else if (scanner.state === "row-selected") {
+                    console.log("going into item state");
                     scanner.state = "item"
                 }
                 else if (scanner.state === "item") {
+                    //console.log("incrementing col count");
                     scanner.selectedCol++;
                     scanner.selectedCol %= numCols;
                 }
                 else if (scanner.state === "item-selected") {
+                    console.log("going into row state");
                     scanner.state = "row"
                 }
             }
@@ -229,16 +239,21 @@ Rectangle {
             }
         ]
 
-        transitions:  [
-            Transition {
-                from: "item"; to: "item-selected";
-                ColorAnimation { duration: 500 }
-            },
-            Transition {
-                from: "row"; to: "row-selected";
-                ColorAnimation { duration: 500 }
-            }
-        ]
+//        transitions:  [
+//            Transition {
+//                from: "item"; to: "item-selected";
+//                ColorAnimation { duration: 500 }
+//            },
+//            Transition {
+//                from: "row"; to: "row-selected";
+//                ColorAnimation { duration: 500 }
+//            }
+//        ]
+    }
+    Component.onCompleted: {
+        console.log("Completed ScanningGridView.");
+        console.log("selectedRow=" + scanner.selectedRow);
+        console.log("selectedRow=" + scanner.selectedCol);
     }
 }
 

@@ -30,8 +30,8 @@ Rectangle {
 
                 z:200
 
-                height: parent.height*0.9
-                width: parent.width*0.9
+                height: parent.height*0.5
+                width: parent.width*0.5
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
 

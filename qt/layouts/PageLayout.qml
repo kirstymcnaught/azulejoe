@@ -2,6 +2,8 @@ import QtQuick 2.0
 
 import "qrc:/JsLoader.js" as JsLoader
 
+import ".."
+
 Item {
     //anchors.fill: parent
 
@@ -14,6 +16,8 @@ Item {
         id: document
         anchors.fill: parent
 
+        z: 100
+
         // Without this alias, JS gives a TypeError.
         property alias main: main
         Image {
@@ -23,7 +27,6 @@ Item {
             property alias src: main.source
 
             anchors.fill: parent
-            z:0
         }
     }
 
@@ -33,85 +36,58 @@ Item {
     property variant links: {}
 
     // The gridview of mouseareas
-    GridView {
+    ScanningGridView {
         id: gridView
-        z: 1
+        z: 101
 
         anchors.fill: parent
 
-        // 5x5 grid.
-        // We'll add appropriate margins inside delegate
-        cellWidth: width / 5
-        cellHeight: height / 5
+        numCols: 5
+        numRows: 5
+
+        focus: true
+        Keys.onSpacePressed: {
+            console.log("space");
+            gridView.next();
+        }
+
+        onClicked: {
+            var utterance = utterances[col][row];
+            var link = links[col][row];
+            clickCell(utterance, link);
+        }
 
         delegate: Item {
-            width: gridView.cellWidth
-            height: gridView.cellHeight
+            //z: 1000
+            anchors.fill: parent
+
             MouseArea {
-                id: mouseArea
-                width: gridView.cellWidth*0.95
-                height: gridView.cellHeight*0.95
+                    id: mouseArea
+                    z: 500
+                width: parent.width*0.95
+                height: parent.width*0.95
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
                 onClicked: {
-                    if (utterance.length > 0) {
-                        // If we've got a single letter, we're spelling a word
-                        // and don't want to add a space
-                        if (utterance.length === 1) {
-                            app.appendWord(qsTr(utterance))
-                        }
-                        else {
-                            app.appendWord(" " + qsTr(utterance))
-                        }
-                    }
-
-                    if (link.trim().length > 0) {
-                        var cmd = link.trim();
-                        switch (cmd) {
-                        case "clear":
-                            app.resetText();
-                            break;
-                        case "deleteword":
-                            app.deleteWord();
-                            break;
-                        case "Backspace":
-                            app.backspace();
-                            break;
-                        case "speak":
-                            TTSClient.speak(app.text);
-                            break;
-                        case "1":
-                            stackView.pop();
-                            break;
-                        case "google":
-                            googlesearch();
-                            break;
-                        case "youtube":
-                            youtubesearch();
-                            break;
-                        case "twitter":
-                            tweet();break;
-                        default:
-                            stackView.push({ item: "qrc:/layouts/PageLayout.qml",
-                                             replace: stackView.depth > 1 ,
-                                             properties: { page: cmd } });
-                        }
-                    }                    
+                    clickCell(modelData.utterance, modelData.link);
                  }
             }
             Rectangle {
-                width: gridView.cellWidth*0.9
-                height: gridView.cellHeight*0.9
+                width: parent.width*0.9
+                height: parent.width*0.9
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.verticalCenter: parent.verticalCenter
 
                 color: "grey"
                 opacity: 0.2
                 visible: mouseArea.pressedButtons
-            }
+            }            
         }
 
         model: pageSet
+
+        // Without this, child pages don't get focus.
+        Component.onCompleted: forceActiveFocus()
     }
 
 
@@ -133,6 +109,52 @@ Item {
                     pageSet.append({ link: links[j][i],
                                        utterance: utterances[j][i] })
                 }
+            }
+        }
+    }
+
+    function clickCell(utterance, link) {
+        if (utterance.length > 0) {
+            // If we've got a single letter, we're spelling a word
+            // and don't want to add a space
+            if (utterance.length === 1) {
+                app.appendWord(qsTr(utterance))
+            }
+            else {
+                app.appendWord(" " + qsTr(utterance))
+            }
+        }
+
+        if (link.trim().length > 0) {
+            var cmd = link.trim();
+            switch (cmd) {
+            case "clear":
+                app.resetText();
+                break;
+            case "deleteword":
+                app.deleteWord();
+                break;
+            case "Backspace":
+                app.backspace();
+                break;
+            case "speak":
+                TTSClient.speak(app.text);
+                break;
+            case "1":
+                stackView.pop();
+                break;
+            case "google":
+                googlesearch();
+                break;
+            case "youtube":
+                youtubesearch();
+                break;
+            case "twitter":
+                tweet();break;
+            default:
+                stackView.push({ item: "qrc:/layouts/PageLayout.qml",
+                                   replace: true ,
+                                   properties: { page: cmd , focus: true} });
             }
         }
     }
