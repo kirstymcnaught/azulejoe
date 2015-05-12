@@ -12,6 +12,7 @@ Item {
     // data, e.g. food().
     property string page: ""
 
+
     Item {
         id: document
         anchors.fill: parent
@@ -55,6 +56,13 @@ Item {
             var utterance = utterances[col][row];
             var link = links[col][row];
             clickCell(utterance, link);
+        }
+
+        function isCellValid(row, col) {
+            var utterance = utterances[col][row];
+            var link = links[col][row];
+            return (link.trim().length > 0 ||
+                    utterance.trim().length > 0)
         }
 
         delegate: Item {

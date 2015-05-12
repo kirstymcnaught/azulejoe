@@ -34,6 +34,21 @@ Rectangle {
 
     color: "transparent"
 
+
+    // Override this function to mark cells as ignoreable.
+    function isCellValid(row, col) {
+        return true;
+    }
+
+    function isRowValid(row) {
+        for (var i=0; i < numCols; i++) {
+            if (isCellValid(row, i)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // row and column are zero-indexed
     signal clicked(int row, int col);
 
@@ -199,6 +214,12 @@ Rectangle {
                   //  console.log("incrementing row count");
                     scanner.selectedRow++;
                     scanner.selectedRow %= numRows;
+
+                    // Keep going if no cells on this row are valid
+                    while (!isRowValid(scanner.selectedRow)) {
+                       scanner.selectedRow++;
+                       scanner.selectedRow %= numRows;
+                    }
                 }
                 else if (scanner.state === "row-selected") {
                     console.log("going into item state");
@@ -208,6 +229,13 @@ Rectangle {
                     //console.log("incrementing col count");
                     scanner.selectedCol++;
                     scanner.selectedCol %= numCols;
+
+                    // Keep going if you're not on a valid cell
+                    while (!isCellValid(scanner.selectedRow,
+                                        scanner.selectedCol)) {
+                        scanner.selectedCol++;
+                        scanner.selectedCol %= numCols;
+                    }
                 }
                 else if (scanner.state === "item-selected") {
                     console.log("going into row state");
