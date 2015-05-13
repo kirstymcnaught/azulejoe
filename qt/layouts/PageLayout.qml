@@ -174,7 +174,7 @@ Item {
                 tweet();break;
             default:
                 stackView.push({ item: "qrc:/layouts/PageLayout.qml",
-                                   replace: true ,
+                                   replace: stackView.depth > 1 ,
                                    properties: { page: cmd , focus: true} });
             }
         }
