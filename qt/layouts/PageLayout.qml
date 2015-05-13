@@ -36,6 +36,19 @@ Item {
     property variant utterances: {}
     property variant links: {}
 
+
+    // Optionally - mouse area over whole page for switch access
+    MouseArea {
+        anchors.fill: parent
+        z: 102
+        onClicked: {
+            console.log("clicked")
+            gridView.next();
+        }
+        // Currently turned off.
+        visible: false
+    }
+
     // The gridview of mouseareas
     ScanningGridView {
         id: gridView
