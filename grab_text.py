@@ -55,7 +55,7 @@ def make_title(label):
         """Given a  string, returns the string in the format we use for
          identifying grids. This is used mostly to build internal link
          structures"""
-        tag = remove_punctuation(label.lower().strip().replace(" ", "_"))
+        tag = remove_punctuation(label.lower().strip().replace(" ", ""))
         if tag == "":
                 tag = "unknown"
         return tag
@@ -159,7 +159,7 @@ document.main.src="%s.%03d.png";
                             col, row, self.colors[col][row])
 
 
-def export_images(grid, slide):
+def export_images(grid, slide, doPrintImageRefs):
         """     Second pass through shapes list finds images and saves them.
         We have to do this separately so it's guaranteed we already know what to
         name the images!"""
@@ -208,12 +208,21 @@ def export_images(grid, slide):
                 h = (b-t)/scale
                 composite = Image.new('RGBA', (w, h))
 
+
+                rotatedPart = False
+
                 # Add all the images together.
                 for shape in images[x, y]:
+                        #print dir(shape)
+                        print shape.flipH
+                        if (shape.rotation > 0.0):
+                            rotatedPart = True
+                            print("ROTATION: "+str(shape.rotation))
+                            print dir(shape)
                         # TODO: flipping.
                         part = Image.open(
                             io.BytesIO(
-                                shape.image.blob))
+                                shape.image.blob)).rotate(shape.rotation)
                         width = part.size[0]
                         height = part.size[1]
                         left = shape.crop_left*width
@@ -227,6 +236,8 @@ def export_images(grid, slide):
                         part = part.crop(box)
                         partScale = (shape.width / part.size[0])
                         # part.size because it might have been cropped
+
+
 
                         part = resizeImage(part, partScale / scale)
                         try:
@@ -244,21 +255,30 @@ def export_images(grid, slide):
                 composite = composite.crop(bbox)
 
                 # Save!
-                label = utterances[x][y]
-                if  (label == "link"):
-                    label = links[x][y]
-                name = remove_punctuation(
-                    "%d-%d-" %
-                    (x, y)+label) + ".png"
-                folder = "icons/" + str(slide_number)
-                if not os.path.exists(folder):
-                        os.makedirs(folder)
-                composite.save(folder + "/" + name)
+                if (rotatedPart):
+                    label = utterances[x][y]
+                    if  (label == "link"):
+                        label = links[x][y]
+                    name = remove_punctuation(label) + "_rot.png"
+                    folder = "icons/" + str(slide_number)
+                    if not os.path.exists(folder):
+                            os.makedirs(folder)
+                    fullname = folder + "/" + name
+                    composite.save(fullname)
+
+                    if (doPrintImageRefs):
+                        ref = make_title(fullname)
+                        print ref + ": " + fullname
 
 
 doPrintJSON = True;
 doSaveJSON = False;
-doExportImages = False;
+doExportImages = True;
+doPrintImageRefs = False;
+doFirstSlideOnly = False;
+
+if doPrintImageRefs and not doExportImages:
+    print "Cannot print image refs without exporting images"
 
 prs = Presentation(inputFile)
 slide_number = 1
@@ -272,11 +292,12 @@ for slide in prs.slides:
             grid.links,
             slide_number]
         if (doExportImages):
-            export_images(grid, slide)
+            export_images(grid, slide, doPrintImageRefs)
         if (doPrintJSON):
             print grid
         slide_number += 1
-        break
+        if doFirstSlideOnly:
+            break
 if (doSaveJSON):
         with open('data.json', 'w') as outfile:
             json.dump(for_json, outfile, sort_keys=True)
