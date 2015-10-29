@@ -10,23 +10,23 @@
 
 class FileUtils : public QQuickItem
 {
-    Q_OBJECT
+  Q_OBJECT
 
 public:
-    Q_INVOKABLE QByteArray read(const QString &fullFilename);
-    Q_INVOKABLE QByteArray read(const QString &path,
-                                const QString &filename);
+  Q_INVOKABLE QByteArray read(const QString &fullFilename);
+  Q_INVOKABLE QByteArray read(const QString &path,
+                              const QString &filename);
 
-    Q_INVOKABLE QString fullFile(const QString &path,
-                                 const QString &filename);
+  Q_INVOKABLE QString fullFile(const QString &path,
+                               const QString &filename);
 
-    Q_INVOKABLE bool exists(const QString &fullFilename);
-    Q_INVOKABLE bool exists(const QString &path,
-                            const QString &filename);
+  Q_INVOKABLE bool exists(const QString &fullFilename);
+  Q_INVOKABLE bool exists(const QString &path,
+                          const QString &filename);
 
-    // Write string into file, return success boolean.
-    Q_INVOKABLE bool writeToFile(const QString& filename,
-                                 const QString& string);
+  // Write string into file, return success boolean.
+  Q_INVOKABLE bool writeToFile(const QString& filename,
+                               const QString& string);
 
 };
 
