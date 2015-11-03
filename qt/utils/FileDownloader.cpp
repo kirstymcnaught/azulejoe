@@ -27,3 +27,8 @@ void FileDownloader::startDownload(QUrl url)
   QNetworkRequest request(url);
   m_WebCtrl.get(request);
 }
+
+QByteArray FileDownloader::getDownloadedData()
+{
+  return m_DownloadedData;
+}

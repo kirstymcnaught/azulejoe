@@ -6,6 +6,7 @@
 #include "TTSClient.h"
 #include "FileUtils.h"
 #include "PagesetCollection.h"
+#include "utils/FileDownloader.h"
 
 int main(int argc, char *argv[])
 {
@@ -25,6 +26,7 @@ int main(int argc, char *argv[])
     // Register any cpp classes we want to instantiate in QML
     qmlRegisterType<PagesetCollection>("com.azulejoe", 1, 0, "PagesetCollection");
     qmlRegisterType<FileUtils>("com.azulejoe", 1, 0, "FileUtils");
+    qmlRegisterType<FileDownloader>("com.azulejoe", 1, 0, "FileDownloader");
 
     // Metatypes for signals/slots/settings
     qRegisterMetaType<PagesetSource>("PagesetSource");

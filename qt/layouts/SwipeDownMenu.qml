@@ -171,6 +171,29 @@ Item {
           }
         }
       }
+
+      FileDownloader {
+        id: downloader
+
+        onDownloaded: {
+          console.log("Download finished.")
+          console.log(downloader.getDownloadedData());
+        }
+      }
+
+      Button {
+        text: "Add pageset from internet"
+        onClicked: {
+         downloader.startDownload("https://raw.githubusercontent.com/joereddington/azulejoe/master/README.md");
+        }
+      }
+
+      Button {
+        text: "Add pageset from file"
+        onClicked: {
+
+        }
+      }
     }
   }
 

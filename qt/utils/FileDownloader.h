@@ -18,6 +18,7 @@ public:
 
 public slots:
   void startDownload(QUrl url);
+  QByteArray getDownloadedData();
 
 signals:
   void downloaded();
