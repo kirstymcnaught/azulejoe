@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
 
-    // Set up a top level TTS Client object, which QML can use.    
+    // Set up a top level TTS Client object, which QML can use.
     QScopedPointer<TTSClient> ttsClient;
     ttsClient.reset(createTTSClient(&engine));
     engine.rootContext()->setContextProperty("TTSClient", ttsClient.data());

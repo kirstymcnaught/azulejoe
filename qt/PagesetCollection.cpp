@@ -28,6 +28,12 @@ void PagesetCollection::loadCustomPagesetsFromSettings()
 
 void PagesetCollection::loadBundledPagesets()
 {
+  // Some of our bundled pagesets are immutable, accessed from within
+  // the application. Others get copied over and then used from the local
+  // file system.
+  // TODO: Do we want to copy every time, or do we want to allow local hackery?
+
+
   // Set up collection with bundled pagesets.
   {
     PagesetSource source;

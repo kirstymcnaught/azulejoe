@@ -177,14 +177,15 @@ Item {
 
         onDownloaded: {
           console.log("Download finished.")
-          console.log(downloader.getDownloadedData());
+        //  console.log(downloader.getDownloadedData());
         }
       }
 
       Button {
         text: "Add pageset from internet"
         onClicked: {
-         downloader.startDownload("https://raw.githubusercontent.com/joereddington/azulejoe/master/README.md");
+         //downloader.startDownload("https://raw.githubusercontent.com/joereddington/azulejoe/master/README.md");
+         downloader.startDownload("https://openboards.s3.amazonaws.com/examples/communikate-20.obz");
         }
       }
 

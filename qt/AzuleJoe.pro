@@ -1,11 +1,14 @@
 TEMPLATE = app
 
-QT += qml quick widgets
+QT += qml quick widgets network gui-private
 
 SOURCES += main.cpp \
     FileUtils.cpp \
     PagesetCollection.cpp \
-    PagesetSource.cpp
+    PagesetSource.cpp \
+    utils/FileDownloader.cpp \
+    utils/FileUtilsPrivate.cpp
+
 RESOURCES += main-resources.qrc
 
 # Pagesets listed separately since we have to list
@@ -18,10 +21,13 @@ RESOURCES += ../javascript/pageset-code.qrc
 # since we have to bundle in the .java files (I think).
 
 INCLUDEPATH += TTS/cpp/
+
 HEADERS += TTS/cpp/TTSClient.h \
     FileUtils.h \
     PagesetSource.h \
-    PagesetCollection.h
+    PagesetCollection.h \
+    utils/FileDownloader.h \
+    utils/FileUtilsPrivate.h
 
 # The implementation of the TTSClient object is OS-dependent. The build system
 # chooses the appropriate one.

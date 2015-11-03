@@ -1,4 +1,6 @@
 #include "FileDownloader.h"
+#include "FileUtilsPrivate.h"
+#include <QFile>
 
 FileDownloader::FileDownloader() :
  QObject()
@@ -12,10 +14,38 @@ FileDownloader::FileDownloader() :
 FileDownloader::~FileDownloader() { }
 
 void FileDownloader::fileDownloaded(QNetworkReply* pReply) {
- m_DownloadedData = pReply->readAll();
+// m_DownloadedData = pReply->readAll();
  //emit a signal
- pReply->deleteLater();
  emit downloaded();
+
+ // Save to disk
+ QString filename = "/Users/kirsty/TEMP/data/downloadthing";
+ QFile file(filename);
+ if (!file.open(QIODevice::WriteOnly)) {
+   fprintf(stderr, "Could not open %s for writing: %s\n",
+           qPrintable(filename),
+           qPrintable(file.errorString()));
+   qDebug() << "Error";
+ }
+
+ file.write(pReply->readAll());
+ file.close();
+
+ // Unzip (if appropriate)
+ FileUtilsPrivate fileUtils;
+ if (fileUtils.isZipFile(filename)) {
+   qDebug() << "Unzipping file " << filename;
+   fileUtils.unzipFile(filename, filename + "unzipped");
+ }
+
+ qDebug() << fileUtils.isZipFile("/Users/kirsty/TEMP/data/downloadthing");
+
+ qDebug() << fileUtils.isZipFile("/Users/kirsty/TEMP/data/downloadthing");
+
+ qDebug() << fileUtils.isZipFile("/Users/kirsty/TEMP/data/thing.txt");
+
+ pReply->deleteLater();
+
 }
 
 QByteArray FileDownloader::downloadedData() const {

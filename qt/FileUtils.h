@@ -31,6 +31,9 @@ public:
 
   bool copyRecursively(QString srcFilePath,
                        QString tgtFilePath);
+
+  bool unzipFile(QString srcFilePath,
+                 QString tgtFilePath);
 };
 
 

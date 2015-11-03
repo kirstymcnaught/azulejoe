@@ -87,3 +87,4 @@ bool FileUtils::copyRecursively(QString srcFilePath,
   }
   return true;
 }
+
