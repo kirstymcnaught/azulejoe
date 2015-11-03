@@ -1,15 +1,12 @@
 #include "FileDownloader.h"
 
-FileDownloader::FileDownloader(QUrl imageUrl, QObject *parent) :
- QObject(parent)
+FileDownloader::FileDownloader() :
+ QObject()
 {
  connect(
   &m_WebCtrl, SIGNAL (finished(QNetworkReply*)),
   this, SLOT (fileDownloaded(QNetworkReply*))
   );
-
- QNetworkRequest request(imageUrl);
- m_WebCtrl.get(request);
 }
 
 FileDownloader::~FileDownloader() { }
@@ -22,5 +19,11 @@ void FileDownloader::fileDownloaded(QNetworkReply* pReply) {
 }
 
 QByteArray FileDownloader::downloadedData() const {
- return m_DownloadedData;
+  return m_DownloadedData;
+}
+
+void FileDownloader::startDownload(QUrl url)
+{
+  QNetworkRequest request(url);
+  m_WebCtrl.get(request);
 }

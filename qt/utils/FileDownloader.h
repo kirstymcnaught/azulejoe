@@ -12,9 +12,12 @@ class FileDownloader : public QObject
   Q_OBJECT
 
 public:
-  explicit FileDownloader(QUrl imageUrl, QObject *parent = 0);
+  explicit FileDownloader();
   virtual ~FileDownloader();
   QByteArray downloadedData() const;
+
+public slots:
+  void startDownload(QUrl url);
 
 signals:
   void downloaded();
