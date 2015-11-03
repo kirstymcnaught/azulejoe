@@ -48,3 +48,42 @@ bool FileUtils::writeToFile(const QString& filename,
     return false;
   }
 }
+
+bool FileUtils::copyRecursively(QString srcFilePath,
+                                QString tgtFilePath)
+{
+
+  QFileInfo topDirInfo(srcFilePath);
+
+  // If single file, just plain copy
+  if (topDirInfo.isFile()) {
+    return(QFile::copy(srcFilePath, tgtFilePath));
+  }
+  else if (topDirInfo.isDir()) {
+    // Make directory
+    QDir targetDir(tgtFilePath);
+    if (!targetDir.mkdir(QFileInfo(tgtFilePath).fileName())) {
+      return false;
+    }
+
+    // Get contents
+    QDir sourceDir(srcFilePath);
+    QStringList fileNames = sourceDir.entryList(QDir::Files |
+                                                QDir::Dirs |
+                                                QDir::NoDotAndDotDot |
+                                                QDir::Hidden |
+                                                QDir::System);
+
+    // Recursively copy
+    foreach (const QString &fileName, fileNames) {
+      // TODO: This doesn't seem very cross-platform.
+      const QString newSrcFilePath
+          = srcFilePath + QLatin1Char('/') + fileName;
+      const QString newTgtFilePath
+          = tgtFilePath + QLatin1Char('/') + fileName;
+      if (!copyRecursively(newSrcFilePath, newTgtFilePath))
+        return false;
+    }
+  }
+  return true;
+}

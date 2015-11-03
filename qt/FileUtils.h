@@ -28,6 +28,9 @@ public:
   Q_INVOKABLE bool writeToFile(const QString& filename,
                                const QString& string);
 
+
+  bool copyRecursively(QString srcFilePath,
+                       QString tgtFilePath);
 };
 
 
